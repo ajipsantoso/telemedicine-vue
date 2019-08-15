@@ -181,7 +181,7 @@ export default {
     },
     monitoring(user){
       console.log(user)
-      this.$router.push({ path: `/monitoring/${user.deviceId}`, params: {userdata: user}})
+      this.$router.push({ path: `/monitoring/${user.device_id}`, params: {userdata: user}})
     },
     view(user) {
       this.viewing = true

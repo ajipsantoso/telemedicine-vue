@@ -4,10 +4,10 @@
         <v-container fluid>
             <v-layout>
               <v-flex xs5>
-                <v-btn @click="onclickdialog">COBA</v-btn>
+                <!-- <v-btn @click="onclickdialog">COBA</v-btn>
                 <v-layout id="containerDialog">
                   <v-icon>mdi-heart</v-icon>
-                </v-layout>
+                </v-layout> -->
                 <div style="width:100%">
                   <canvas id="chartContainer" width="500" height="400"></canvas>
                 </div>
@@ -70,20 +70,20 @@ export default {
   computed:{
   },
   methods:{
-    onclickdialog(){
-      this.numDialog += 1;
-      // this.movingDialog =
-      // `${this.movingDialog}
-      //   <v-icon fab larger class="red" id="dl${this.numDialog}" style="position:absolute">mdi-heart</v-icon>
-      // `
-      const dialogontainer = this.$el.querySelector(`#containerDialog`);
-      const node = document.createElement("v-icon");
-      node.innerHTML = 'mdi-heart'
-      dialogontainer.appendChild(node)
-      let dialIcon = this.$el.querySelector(`#dl${1}`)
-      console.log('the',dialIcon)
-      dialIcon.style.left = 50+'px';
-    },
+    // onclickdialog(){
+    //   this.numDialog += 1;
+    //   // this.movingDialog =
+    //   // `${this.movingDialog}
+    //   //   <v-icon fab larger class="red" id="dl${this.numDialog}" style="position:absolute">mdi-heart</v-icon>
+    //   // `
+    //   const dialogontainer = this.$el.querySelector(`#containerDialog`);
+    //   const node = document.createElement("v-icon");
+    //   node.innerHTML = 'mdi-heart'
+    //   dialogontainer.appendChild(node)
+    //   let dialIcon = this.$el.querySelector(`#dl${1}`)
+    //   console.log('the',dialIcon)
+    //   dialIcon.style.left = 50+'px';
+    // },
     chartonload(){
         console.log("loaded")
         var series = new TimeSeries();
@@ -104,7 +104,7 @@ export default {
         }, 10);
     },
     testingMqtt() {
-      const ipBroker = 'hantamsurga.net';
+      const ipBroker = 'telemedicine.co.id';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"
@@ -152,7 +152,7 @@ export default {
     },
     mqqtLabel() {
       const self = this;
-      const ipBroker = 'hantamsurga.net';
+      const ipBroker = 'telemedicine.co.id';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"

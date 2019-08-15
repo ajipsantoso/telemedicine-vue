@@ -2,10 +2,10 @@ const middware = {
     async checkRole({store, next, to}){
       console.log('role:',store.getters['auth/status'])
       if (store.getters['auth/isLogedIn']) {
-        let res = await store.dispatch(`auth/userDetail`,store.getters['auth/status']);
+        let res = await store.dispatch(`auth/userDetail`, await store.getters['auth/status']);
         if (res && to.meta.role) {
           const routeRole = to.meta.role;
-          const hasFunction = routeRole === store.getters['auth/status'];
+          const hasFunction = routeRole === await store.getters['auth/status'];
           console.log('role res:',res, hasFunction)
           if (!hasFunction) {
             next({
