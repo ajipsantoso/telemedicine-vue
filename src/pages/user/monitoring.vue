@@ -8,9 +8,26 @@
                 <v-layout id="containerDialog">
                   <v-icon>mdi-heart</v-icon>
                 </v-layout> -->
-                <canvas id="canvas" style="background:rgba(34,45,23,0.4)"></canvas>
+                <v-layout justify-center>
+                  <v-alert
+                    dense
+                    outlined
+                    width="530"
+                  >
+                    <v-layout justify-center>
+                      <canvas id="canvas" width="500" height="40"></canvas>
+                    </v-layout>
+                  </v-alert>
+                </v-layout>
                 <div style="width:100%">
-                  <canvas id="chartContainer" width="500" height="400"></canvas>
+                  <v-layout justify-center>
+                    <v-alert
+                      dense
+                      outlined
+                    >
+                      <canvas id="chartContainer" width="500" height="400"></canvas>
+                    </v-alert>
+                  </v-layout>
                 </div>
               </v-flex>
               <v-spacer></v-spacer>
@@ -26,7 +43,7 @@
                       :key="idx"
                     >
                       <v-list-item-avatar>
-                        <v-icon :class="'green lighten-1 white--text'" v-text="'mdi-heart'"></v-icon>
+                        <v-icon class="lighten-1 white--text" :class="{'green': !label.color, 'red': label.color}" v-text="'mdi-heart'"></v-icon>
                       </v-list-item-avatar>
                       <v-list-item-content>
                         <v-list-item-title v-text="label.title"></v-list-item-title>
@@ -53,6 +70,7 @@ import Chart from '@/components/Chart.vue';
 import {SmoothieChart, TimeSeries} from 'smoothie'
 import moment from 'moment';
 import paho from 'paho-mqtt';
+import { setTimeout } from 'timers';
 
 export default {
   components:{
@@ -71,20 +89,6 @@ export default {
   computed:{
   },
   methods:{
-    // onclickdialog(){
-    //   this.numDialog += 1;
-    //   // this.movingDialog =
-    //   // `${this.movingDialog}
-    //   //   <v-icon fab larger class="red" id="dl${this.numDialog}" style="position:absolute">mdi-heart</v-icon>
-    //   // `
-    //   const dialogontainer = this.$el.querySelector(`#containerDialog`);
-    //   const node = document.createElement("v-icon");
-    //   node.innerHTML = 'mdi-heart'
-    //   dialogontainer.appendChild(node)
-    //   let dialIcon = this.$el.querySelector(`#dl${1}`)
-    //   console.log('the',dialIcon)
-    //   dialIcon.style.left = 50+'px';
-    // },
     chartonload(){
         console.log("loaded")
         var series = new TimeSeries();
@@ -109,7 +113,7 @@ export default {
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"
-      const topic_notif = "rhythm/"+deviceId+"/n"
+      const topic_notif = `rhythm/${deviceId}/n`
       let client = new paho.Client(ipBroker, Number(portBroker), "myclientid_" + parseInt(Math.random() * 100, 10));
       client.onConnectionLost = onConnectionLost;
       client.onMessageArrived = onMessageArrived;
@@ -166,8 +170,7 @@ export default {
         };
         var count_notif = 0;
         //Gets called whenever you receive a message for your subscriptions
-        
-        
+
          setInterval(function(){
           if(self.tempArr.length > 0){
             publish('normal',topic_notif);
@@ -219,36 +222,69 @@ export default {
             //console.log(str);
             if(count_notif >= 5){
                 self.mqttLabels.pop();
+            }
                 if(message1.payloadString == "pvc"){
+                  self.mqttLabels.unshift({
+                    title: 'Ventricular Arrhytmia Detected',
+                    time: str,
+                    color: true
+                  })
+                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  if (!running) {
+                    drawCircle();
+                  }
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">Ventricular Arrhytmia Detected</strong></p><br></div></li>');
                 }else if(message1.payloadString == "vf"){
+                  self.mqttLabels.unshift({
+                    title: 'VF Detected',
+                    time: str,
+                    color: true
+                  })
+                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  if (!running) {
+                    drawCircle();
+                  }
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VF Detected</strong></p><br></div></li>');
                 }else if(message1.payloadString == "vff"){
+                  self.mqttLabels.unshift({
+                    title: 'VFL Detected',
+                    time: str,
+                    color: true
+                  })
+                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  if (!running) {
+                    drawCircle();
+                  }
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VFL Detected</strong></p><br></div></li>');
                 }else {
                   self.mqttLabels.unshift({
                     title: 'Normal Heartbeat',
                     time: str,
+                    color: false
                   })
+                  cObject.push(new Circle(canW,canH, '#4CAF50'))
+                  if (!running) {
+                    drawCircle();
+                  }
                   console.log('Normal')
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-greenDark"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-greenDark">Normal Heartbeat</strong></p><br></div></li>');
                 }
-            }else{
-                if(message1.payloadString == "pvc"){
-                    // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">Ventricular Arrhytmia Detected</strong></p><br></div></li>');
-                }else if(message1.payloadString == "vf"){
-                    // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VF Detected</strong></p><br></div></li>');
-                }else if(message1.payloadString == "vff"){
-                    // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VFF Detected</strong></p><br></div></li>');
-                }else {
-                  console.log('Normal')
-                  self.mqttLabels.unshift({
-                    title: 'Normal Heartbeat',
-                    time: str,
-                  })
-                    // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-greenDark"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-greenDark">Normal Heartbeat</strong></p><br></div></li>');
-                }
-            }
+            // }else{
+            //     if(message1.payloadString == "pvc"){
+            //         // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">Ventricular Arrhytmia Detected</strong></p><br></div></li>');
+            //     }else if(message1.payloadString == "vf"){
+            //         // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VF Detected</strong></p><br></div></li>');
+            //     }else if(message1.payloadString == "vff"){
+            //         // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VFF Detected</strong></p><br></div></li>');
+            //     }else {
+            //       console.log('Normal')
+            //       self.mqttLabels.unshift({
+            //         title: 'Normal Heartbeat',
+            //         time: str,
+            //       })
+            //         // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-greenDark"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-greenDark">Normal Heartbeat</strong></p><br></div></li>');
+            //     }
+            // }
             count_notif += 1;
             //code di atas buat nampilin di bagian monitoring report biar setiap 5 kali report di hapus yang paling atas
             //console.log(count_notif);
@@ -268,10 +304,56 @@ export default {
             // Once a connection has been made, make a subscription and send a message.
             console.log("onConnectnotif");
             client1.subscribe(topic_notif);
+            publish('normal',topic_notif);
             /* message = new Messaging.Message("haaay");
              message.destinationName = "/testmqtt";
              client.send(message);*/
         };
+        const can = document.getElementById('canvas');
+        const canW = can.width, canH = can.height/2
+        let cObject = []
+        let ctx = can.getContext('2d');
+        // cObject.push(new Circle(canW,canH,'red'))
+        // setTimeout(() => {
+        //   cObject.push(new Circle(canW,canH, 'green'))
+        //   if (!running) {
+        //     drawCircle();
+        //   }
+        // }, 1000)
+        let running = false
+        function drawCircle() {
+          if (cObject.length > 0) {
+            running = true
+            ctx.clearRect(0, 0, can.width, can.height);
+            console.log('run')
+            for( var r = 0; r < cObject.length; r++ ) {
+              cObject[r].update();
+              if (cObject[r].x < 0-25) {
+                cObject.splice(r,1)
+              }
+            }
+            requestAnimationFrame(drawCircle);
+          }
+          else {
+            running = false
+            cancelAnimationFrame(drawCircle)
+          }
+        }
+        drawCircle();
+        function Circle(circleX, circleY, color) {
+          this.x = circleX;
+          this.y = circleY;
+          this.draw = function () {
+            ctx.beginPath();
+            ctx.arc( this.x, this.y, can.height-20, 0, Math.PI * 2, false  );
+            ctx.fillStyle = color;
+            ctx.fill();
+          }
+          this.update = function () {
+            this.x -= 2
+            this.draw();
+          }
+        }
     },
     // fillData() {
     //   let self = this;
@@ -293,27 +375,8 @@ export default {
     // this.fillData();
     this.testingMqtt();
     this.mqqtLabel();
-    var can = document.getElementById('canvas');
-    // can.height = 500; can.width = 500;
-    var ctx = can.getContext('2d');
-    var x = 0, y = can.height/2;
-    ctx.fillStyle = "black";
-    ctx.fillRect(800, 100, 100, 100);
-
-    function draw() {
-        ctx.beginPath();
-        ctx.arc(x, y, 20, 0, 2 * Math.PI);
-        ctx.fillStyle = 'rgba(250,0,0,1)';
-        ctx.fill();
-
-        x += 2;
-        ctx.fillStyle = "rgba(255,255,255,0.4)";
-        ctx.fillRect(0, 0, can.width, can.height);
-        requestAnimationFrame(draw);
-        //ctx.clearRect(0,0,can.width,can.height);
-    }
-    draw();
     
   },
 }
+
 </script>

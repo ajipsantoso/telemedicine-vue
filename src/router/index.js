@@ -40,7 +40,7 @@ export default new Router({
         {
           path: '/edit-user',
           name: 'edit',
-          component: () => import('../pages/user/userEdit.vue'),
+          component: () => import('../pages/user/create.vue'),
           props: true,
           meta: {
             middleware: { auth: true },
