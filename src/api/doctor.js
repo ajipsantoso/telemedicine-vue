@@ -7,4 +7,7 @@ export default {
   addPatient(data) {
     return ApiDoctor.post(`/add_patient`, data);
   },
+  updatePatient(data) {
+    return ApiDoctor.post(`/update_patient`, data);
+  },
 };

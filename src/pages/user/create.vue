@@ -89,17 +89,16 @@
           </v-layout>
           <v-layout row>
             <v-flex xs3>
-              <v-subheader>Usia</v-subheader>
+              <v-subheader>Alamat</v-subheader>
             </v-flex>
             <v-flex xs9>
               <v-text-field
                 label=""
-                v-model="userdata.usia"
+                v-model="userdata.address"
                 required
                 v-validate="'required'"
-                data-vv-name="usia"
-                type="number"
-                :error-messages="errors.collect('createForm.usia')"
+                data-vv-name="address"
+                :error-messages="errors.collect('createForm.address')"
               />
             </v-flex>
           </v-layout>
@@ -146,6 +145,7 @@
 <script>
 
 export default {
+  props: ['userEdit'],
   data: () => ({
     isCreated: true,
     userdata: {
@@ -166,7 +166,10 @@ export default {
   computed: {
     // ...mapGetters(['updating', 'creating'])
   },
-  mounted() {
+  created() {
+    // if (this.userEdit) {
+    //   this.userdata = this.userEdit;
+    // }
   },
   methods: {
     cancel() {

@@ -46,6 +46,7 @@ export default {
             commit('SET_USER', data.data);
             commit('SET_TOKEN', data.data.session);
             commit('SET_STATUS', 'doctor');
+            commit('SET_ISDOCTOR', true)
             return data.data;
           } else {
             console.log('err login', data);
@@ -68,6 +69,7 @@ export default {
             commit('SET_USER', data.data);
             commit('SET_TOKEN', data.data.session);
             commit('SET_STATUS', data.data.session);
+            commit('SET_ISDOCTOR', false);
             return data.data;
           } else {
             console.log('err login', data);

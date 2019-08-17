@@ -1,8 +1,9 @@
 const middware = {
     async checkRole({store, next, to}){
-      console.log('role:',store.getters['auth/status'])
+      console.log('role:',store.getters['auth/status'], store.getters['auth/isLogedIn'])
       if (store.getters['auth/isLogedIn']) {
         let res = await store.dispatch(`auth/userDetail`, await store.getters['auth/status']);
+        console.log('res role', res, to.meta.role)
         if (res && to.meta.role) {
           const routeRole = to.meta.role;
           const hasFunction = routeRole === await store.getters['auth/status'];
@@ -12,6 +13,7 @@ const middware = {
               path:'/unauthorized'
             });
           } else {
+            console.log(next)
             next();
           }
         } else {
@@ -51,9 +53,9 @@ const middware = {
         console.log('to:','/')
         await middware.checkDashboard({store, next, to});
       } else if (to.meta.middleware) {
-        console.log('to:','guest')
+        console.log('to: -','guest')
         if (to.meta.middleware.guest) {
-          console.log('to:','here')
+          console.log('to: -','here')
           if (store.getters['auth/isLogedIn']){
             console.log('to:','hm')
             next({

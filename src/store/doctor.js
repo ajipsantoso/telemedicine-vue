@@ -46,7 +46,24 @@ export default {
           console.log(err)
           return false;
         })
-    }
+    },
+    updatePatient({ commit }, data) {
+      return api.doctor
+        .updatePatient(data)
+        .then(({ data }) => {
+          console.log(data);
+          if (data.status === 'success') {
+            return data;
+          } else {
+            console.log(data)
+            return false;
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          return false;
+        })
+    },
   },
   getters: {
     listPatient: state => state.listPatient

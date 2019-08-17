@@ -110,8 +110,8 @@
             </v-alert>
           </template> -->
         </v-data-table>
-        <v-dialog v-model="viewing" max-width="468px">
-          <user-detail-card :user="user" :is-viewing="isViewing" :close="closeModalDetail" />
+        <v-dialog v-model="isViewing" max-width="468px">
+          <user-detail-card :user="user" :isEdit="editing" />
         </v-dialog>
       </v-card>
     <!-- </v-layout> -->
@@ -131,6 +131,7 @@ export default {
     isLoading: false,
     user: null,
     viewing: false,
+    editing: false,
     headers: [
       {
         text: 'Device ID',
@@ -170,22 +171,28 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      isViewing : 'viewing',
       listPatient: 'doctor/listPatient'
     }),
+    isViewing: {
+      get: function() {
+        return this.$store.getters['viewing'];
+      },
+      set: function(newVal) {
+        this.user = null;
+        this.editing = false;
+        this.$store.commit('viewed');
+      }
+    }
   },
   methods:{
-    closeModalDetail() {
-      this.viewing = false
-      this.user = null
-    },
     monitoring(user){
       console.log(user)
       this.$router.push({ path: `/monitoring/${user.device_id}`, params: {userdata: user}})
     },
     view(user) {
-      this.viewing = true
+      this.viewing = true;
       this.user = user
+      this.$store.commit('viewing');
       // this.$store.dispatch('users/detail', user.id).then(data => {
       //   if (data) {
       //     this.user = data.data
@@ -193,7 +200,9 @@ export default {
       // })
     },
     edit(user) {
-      this.$router.push({ name: 'edit', params: {userdata: user}})
+      this.editing = true;
+      this.user = user
+      this.$store.commit('viewing');
     },
     fetch() {
       this.isLoading = true;

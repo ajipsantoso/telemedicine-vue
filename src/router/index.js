@@ -87,7 +87,6 @@ export default new Router({
     },
     {
       path: '/unauthorized',
-      redirect: '/'
     },
     {
       path: '/',

@@ -21,7 +21,7 @@ export default new Vuex.Store({
     viewing(state) {
       state.viewing = true;
     },
-    viewing(state) {
+    viewed(state) {
       state.viewing = false;
     },
   },

@@ -8,6 +8,7 @@
                 <v-layout id="containerDialog">
                   <v-icon>mdi-heart</v-icon>
                 </v-layout> -->
+                <canvas id="canvas" style="background:rgba(34,45,23,0.4)"></canvas>
                 <div style="width:100%">
                   <canvas id="chartContainer" width="500" height="400"></canvas>
                 </div>
@@ -19,7 +20,7 @@
                   class="mx-auto"
                 >
                 <v-list two-line subheader>
-                  <v-subheader >Heart Rate Indicator {{ arr.length }}</v-subheader>
+                  <v-subheader >Heart Rate Indicator</v-subheader>
                     <v-list-item
                       v-for="(label,idx) in mqttLabels"
                       :key="idx"
@@ -88,11 +89,11 @@ export default {
         console.log("loaded")
         var series = new TimeSeries();
         var chart = new SmoothieChart({
-            grid:{fillStyle:'#ffffff',verticalSections:30,
-            borderVisible:false},
-            labels:{disabled:true},
-            millisPerPixel:8,
-            })
+          grid:{fillStyle:'#ffffff',verticalSections:30,
+          borderVisible:false},
+          labels:{disabled:true},
+          millisPerPixel:8,
+        })
         chart.addTimeSeries(series, { strokeStyle: 'rgb(206,95,108)', lineWidth: 2 });
         chart.streamTo(document.getElementById("chartContainer"), 500);
         let self =this;
@@ -104,7 +105,7 @@ export default {
         }, 10);
     },
     testingMqtt() {
-      const ipBroker = 'telemedicine.co.id';
+      const ipBroker = 'hantamsurga.net';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"
@@ -152,11 +153,11 @@ export default {
     },
     mqqtLabel() {
       const self = this;
-      const ipBroker = 'telemedicine.co.id';
+      const ipBroker = 'hantamsurga.net';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"
-      const topic_notif = "rhythm/"+deviceId+"/n"
+      const topic_notif = `rhythm/${deviceId}/n`
       let client1 = new paho.Client(ipBroker, Number(portBroker), "myclientid_" + parseInt(Math.random() * 100, 10));
         //Gets  called if the websocket/mqtt connection gets disconnected for any reason
         client1.onConnectionLost = function (responseObject1) {
@@ -168,15 +169,15 @@ export default {
         
         
          setInterval(function(){
-         if(self.arr.length > 0){
-         	publish('normal',topic_notif);
-         }
+          if(self.tempArr.length > 0){
+            publish('normal',topic_notif);
+          }
          //     console.log(random.data.length)
          //    if (random.data.length % 300 == 0 && random.data.length > 0){
          //        	publish('normal','rhythm/<?php //echo $_GET['deviceid']; ?>///n');
          //    }
         
-             }, 6000);
+          }, 6000);
         document.onkeydown = checkKey;
         function checkKey(e) {
             e = e || window.event;
@@ -292,6 +293,26 @@ export default {
     // this.fillData();
     this.testingMqtt();
     this.mqqtLabel();
+    var can = document.getElementById('canvas');
+    // can.height = 500; can.width = 500;
+    var ctx = can.getContext('2d');
+    var x = 0, y = can.height/2;
+    ctx.fillStyle = "black";
+    ctx.fillRect(800, 100, 100, 100);
+
+    function draw() {
+        ctx.beginPath();
+        ctx.arc(x, y, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = 'rgba(250,0,0,1)';
+        ctx.fill();
+
+        x += 2;
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.fillRect(0, 0, can.width, can.height);
+        requestAnimationFrame(draw);
+        //ctx.clearRect(0,0,can.width,can.height);
+    }
+    draw();
     
   },
 }
