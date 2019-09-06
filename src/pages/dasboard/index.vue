@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- <v-layout row fluid> -->
-      <v-card class="elevation-4">
+      <v-card class="elevation-4 ma-5">
         <v-card-title class="primary">
           <v-layout
           align-center
@@ -142,11 +142,6 @@ export default {
       {
         text: 'Nama Pasien',
         value: 'name',
-        width: '20%'
-      },
-      {
-        text: 'Nama Dokter',
-        value: 'doctor',
         width: '20%'
       },
       {

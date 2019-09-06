@@ -1,9 +1,9 @@
 <template>
     <v-layout>
-      <v-flex xs12>
-        <v-container fluid>
+      <v-flex xs12 class="ma-5">
+        <v-container fluid class="pa-5">
             <v-layout>
-              <v-flex xs5>
+              <v-flex xs6>
                 <!-- <v-btn @click="onclickdialog">COBA</v-btn>
                 <v-layout id="containerDialog">
                   <v-icon>mdi-heart</v-icon>
@@ -109,7 +109,7 @@ export default {
         }, 10);
     },
     testingMqtt() {
-      const ipBroker = 'hantamsurga.net';
+      const ipBroker = 'telemedicine.co.id';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
       const topic_monitoring = "rhythm/"+deviceId+"/ecg"
@@ -157,10 +157,10 @@ export default {
     },
     mqqtLabel() {
       const self = this;
-      const ipBroker = 'hantamsurga.net';
+      const ipBroker = 'telemedicine.co.id';
       const deviceId = this.$route.params.deviceId;
       const portBroker = '49878';
-      const topic_monitoring = "rhythm/"+deviceId+"/ecg"
+      const topic_monitoring = `rhythm/${deviceId}/ecg`
       const topic_notif = `rhythm/${deviceId}/n`
       let client1 = new paho.Client(ipBroker, Number(portBroker), "myclientid_" + parseInt(Math.random() * 100, 10));
         //Gets  called if the websocket/mqtt connection gets disconnected for any reason
@@ -173,7 +173,7 @@ export default {
 
          setInterval(function(){
           if(self.tempArr.length > 0){
-            publish('normal',topic_notif);
+            publish('normal', topic_notif);
           }
          //     console.log(random.data.length)
          //    if (random.data.length % 300 == 0 && random.data.length > 0){
@@ -212,7 +212,7 @@ export default {
         }
         client1.onMessageArrived = function (message1) {
             //Do something with the push message you received
-            var str = "";
+            var str
             var currentTime = new Date()
             var hours = currentTime.getHours()
             var minutes = currentTime.getMinutes()
@@ -229,7 +229,7 @@ export default {
                     time: str,
                     color: true
                   })
-                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  cObject.push(new Circle(canW,canH, '#F44336', 'PVC'))
                   if (!running) {
                     drawCircle();
                   }
@@ -240,9 +240,9 @@ export default {
                     time: str,
                     color: true
                   })
-                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  cObject.push(new Circle(canW,canH, '#F44336', 'VF'))
                   if (!running) {
-                    drawCircle();
+                    drawCircle('VF');
                   }
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VF Detected</strong></p><br></div></li>');
                 }else if(message1.payloadString == "vff"){
@@ -251,9 +251,9 @@ export default {
                     time: str,
                     color: true
                   })
-                  cObject.push(new Circle(canW,canH, '#F44336'))
+                  cObject.push(new Circle(canW,canH, '#F44336', 'VFF'))
                   if (!running) {
-                    drawCircle();
+                    drawCircle('VFF');
                   }
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-red"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-red">VFL Detected</strong></p><br></div></li>');
                 }else {
@@ -262,9 +262,9 @@ export default {
                     time: str,
                     color: false
                   })
-                  cObject.push(new Circle(canW,canH, '#4CAF50'))
+                  cObject.push(new Circle(canW,canH, '#4CAF50', 'N'))
                   if (!running) {
-                    drawCircle();
+                    drawCircle('N');
                   }
                   console.log('Normal')
                     // $('#mqttnotif').append('<li><div class="smart-timeline-icon bg-color-greenDark"><i class="fa fa-heart"></i></div><div class="smart-timeline-time"><small>'+str+'</small></div><div class="smart-timeline-content"><p><strong class="txt-color-greenDark">Normal Heartbeat</strong></p><br></div></li>');
@@ -304,7 +304,7 @@ export default {
             // Once a connection has been made, make a subscription and send a message.
             console.log("onConnectnotif");
             client1.subscribe(topic_notif);
-            publish('normal',topic_notif);
+            
             /* message = new Messaging.Message("haaay");
              message.destinationName = "/testmqtt";
              client.send(message);*/
@@ -340,13 +340,19 @@ export default {
           }
         }
         drawCircle();
-        function Circle(circleX, circleY, color) {
+        function Circle(circleX, circleY, color, txt) {
           this.x = circleX;
           this.y = circleY;
           this.draw = function () {
             ctx.beginPath();
-            ctx.arc( this.x, this.y, can.height-20, 0, Math.PI * 2, false  );
             ctx.fillStyle = color;
+            ctx.font = "20px Calibri";
+            ctx.arc( this.x, this.y, can.height-20, 0, Math.PI * 2, false );
+            let dx = txt === 'N' ? 0 : txt.length === 2 ? -2 : -6
+            ctx.fill();
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.fillText(txt, this.x-8+dx, this.y+5);
             ctx.fill();
           }
           this.update = function () {

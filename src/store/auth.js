@@ -82,10 +82,11 @@ export default {
         });
     },
     logout({ commit }, credentials) {
-      commit('set_Logedin', false);
+      commit('SET_LOGEDIN', false);
       commit('SET_USER', null);
-      commit('SET_USER_ROLE',null);
-      commit('set_token', null);
+      commit('SET_TOKEN', null);
+      commit('SET_STATUS', null);
+      commit('SET_ISDOCTOR', false);
       token.clear();
     },
     userDetail({ commit }, status) {

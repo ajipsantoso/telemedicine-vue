@@ -33,16 +33,16 @@
       </template>
       <v-card>
         <v-list>
-          <v-list-item avatar>
+          <v-list-item>
             <v-list-item-avatar>
               <v-avatar size="40" color="secondary">
               <v-icon dark>mdi-account</v-icon>
               </v-avatar>
               <!-- <img :src="avatarImageUrl" :alt="user.name" /> -->
             </v-list-item-avatar>
-            <v-list-item-content>
+            <v-list-item-content v-if="user">
               <v-list-item-title>{{ user.name }}</v-list-item-title>
-              <v-list-item-sub-title>{{ user.email }}</v-list-item-sub-title>
+              <v-list-item-subtitle>{{ user.email }}</v-list-item-subtitle>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -67,7 +67,10 @@ export default {
       this.$store.dispatch('toggleSidebar');
     },
     logout() {
-
+      this.$store.dispatch('auth/logout')
+        .then(() => {
+          this.$router.push('/login')
+        });
     },
   },
 };

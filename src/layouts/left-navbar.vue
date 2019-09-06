@@ -85,9 +85,14 @@ export default {
   data: () => ({
     items: [
       {
-        icon: 'mdi-home',
+        icon: 'mdi-home-outline',
         title: 'Dashboard',
         to: '/',
+      },
+      {
+        icon: 'mdi-file-export-outline',
+        title: 'Classification',
+        to: '/classify',
       },
       // {
       //   icon: 'people',
