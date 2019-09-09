@@ -52,6 +52,12 @@
                       Monitoring Interval
                     </v-list-item-title>
                   </v-list-item>
+                  <v-list-item @click="classify(item)">
+                    <v-list-item-title>
+                      <v-icon>mdi-file-export-outline</v-icon>
+                      Classification Offline
+                    </v-list-item-title>
+                  </v-list-item>
                   <v-list-item @click="view(item)">
                     <v-list-item-title>
                       <v-icon>mdi-magnify</v-icon>
@@ -67,48 +73,6 @@
                 </v-list>
               </v-menu>
           </template>
-          <!-- <v-progress-linear v-slot:progress color="blue" indeterminate></v-progress-linear> -->
-          <!-- <template v-slot:items="props">
-            <td class="text-xs-left">{{ props.item.deviceId }}</td>
-            <td class="text-xs-left">{{ props.item.name }}</td>
-            <td class="text-xs-left">{{ props.item.doctor }}</td>
-            <td class="text-xs-left">{{ props.item.address }}</td>
-            <td class="text-xs-left">{{ props.item.gender }}</td>
-            <td class="text-xs-left"> {{ props.item.gender }}
-              <v-menu offset-y>
-                <template v-slot:activator="{ on }">
-                  <v-btn v-on="on" color="primary" light small fab slot="activator">
-                    <v-icon>mdi-dots-vertical</v-icon>
-                  </v-btn>
-                </template>
-                <v-list>
-                  <v-list-item @click="monitoring(props.item)">
-                    <v-list-item-title>
-                      <v-icon>favorite_border</v-icon>
-                      Monitoring Interval
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="view(props.item)">
-                    <v-list-item-title>
-                      <v-icon>mdi-magnify</v-icon>
-                      User Detail
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="edit(props.item)">
-                    <v-list-item-title>
-                      <v-icon>edit</v-icon>
-                      Edit User
-                    </v-list-item-title>
-                  </v-list-item>
-                </v-list>
-              </v-menu>
-            </td>
-          </template> -->
-          <!-- <template v-slot:no-results>
-            <v-alert :value="true" color="error" icon="warning">
-              Your search for "{{ search }}" found no results.
-            </v-alert>
-          </template> -->
         </v-data-table>
         <v-dialog v-model="isViewing" max-width="468px">
           <user-detail-card :user="user" :isEdit="editing" />
@@ -193,6 +157,10 @@ export default {
       //     this.user = data.data
       //   }
       // })
+    },
+    classify(user) {
+      this.$store.commit('classify/SET_USER_DATA', user);
+      this.$router.push({ path: `/classify/${user.patient_id}`, params: {userdata: user}})
     },
     edit(user) {
       this.editing = true;

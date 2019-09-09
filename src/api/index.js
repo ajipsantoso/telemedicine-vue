@@ -1,15 +1,16 @@
 import axios from 'axios';
 import auth from './auth';
 import doctor from './doctor';
+import classify from './classify';
 import token from '../utils/token';
 
 export const ApiDoctor = axios.create({
-  baseURL: `http://telemedicine.co.id:3000/doctor/`,
+  baseURL: `${process.env.VUE_APP_BASE_URL}:3000/doctor/`,
   timeout: 12000
 });
 
 export const ApiPatient = axios.create({
-  baseURL: `http://telemedicine.co.id:3000/patient/`,
+  baseURL: `${process.env.VUE_APP_BASE_URL}:3000/patient/`,
   timeout: 12000
 });
 
@@ -27,5 +28,6 @@ if (token.exists()) {
 
 export default {
   auth,
+  classify,
   doctor
 };

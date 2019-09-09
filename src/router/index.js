@@ -29,7 +29,7 @@ export default new Router({
           }
         },
         {
-          path: '/classify',
+          path: '/classify/:id',
           name: 'classify',
           component: () => import('../pages/classify/classify.vue'),
           meta: {
