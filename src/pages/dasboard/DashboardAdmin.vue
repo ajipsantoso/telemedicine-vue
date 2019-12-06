@@ -3,12 +3,31 @@
     <!-- <v-layout row fluid> -->
       <v-card class="elevation-4 ma-5">
         <v-card-title class="primary">
-          <v-layout
+          <!-- <v-layout
           align-center
           class="white--text"
           style="font-size: 20px; font-weight: 500; letter-spacing: .02em;">
-            Data Pasien
-          </v-layout>
+            Data User
+          </v-layout> -->
+          <v-row no-gutters>
+            <v-col cols="6" class="title white--text">
+              Data User
+            </v-col>
+            <v-col cols="12">
+              <v-tabs
+                v-model="tab"
+                dark
+                background-color="transparent"
+                grow
+                show-arrows
+                mobile-break-point="0"
+                touchless
+              >
+                <v-tab :key="'doctor'">Doctor</v-tab>
+                <v-tab :key="'patient'">Patient</v-tab>
+              </v-tabs>
+            </v-col>
+          </v-row>
         </v-card-title>
         <v-container class="py-3 mx-1" fluid>
           <v-layout>
@@ -23,7 +42,7 @@
             </v-flex>
             <v-spacer></v-spacer>
             <v-flex xs2 d-flex align-center justify-end>
-              <v-btn to="/create-user" color="default" medium elevation="4">
+              <v-btn @click="create()" to="" color="default" medium elevation="4">
                 create +
               </v-btn>
             </v-flex>
@@ -38,6 +57,9 @@
           <template v-slot:item.gender="{ item }" class="text-xs-center">
             {{ item.gender ? 'L' : 'P' }}
           </template>
+          <template v-slot:item.status="{ item }" class="text-xs-center">
+            {{ item.status === 1 ? 'Dokter' : 'Suster' }}
+          </template>
           <template v-slot:item.action="{ item }" class="text-xs-center">
             <v-menu offset-y>
                 <template v-slot:activator="{ on }">
@@ -46,24 +68,6 @@
                   </v-btn>
                 </template>
                 <v-list>
-                  <v-list-item @click="monitoring(item)">
-                    <v-list-item-title>
-                      <v-icon>mdi-heart-outline</v-icon>
-                      Monitoring Interval
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="monitoringThLead(item)">
-                    <v-list-item-title>
-                      <v-icon>mdi-heart-outline</v-icon>
-                      Monitoring Interval 3-Lead
-                    </v-list-item-title>
-                  </v-list-item>
-                  <v-list-item @click="classify(item)">
-                    <v-list-item-title>
-                      <v-icon>mdi-file-export-outline</v-icon>
-                      Classification Offline
-                    </v-list-item-title>
-                  </v-list-item>
                   <v-list-item @click="view(item)">
                     <v-list-item-title>
                       <v-icon>mdi-magnify</v-icon>
@@ -81,7 +85,7 @@
           </template>
         </v-data-table>
         <v-dialog v-model="isViewing" max-width="468px">
-          <user-detail-card :user="user" :isEdit="editing" />
+          <component :is="selectedComp" v-if="isViewing" :user="user" :isEdit="editing" />
         </v-dialog>
       </v-card>
     <!-- </v-layout> -->
@@ -91,39 +95,56 @@
 <script>
 import { mapGetters } from 'vuex';
 import UserDetailCard from './UserDetailCard.vue';
+import DoctorDetailCard from './DoctorDetailCard.vue';
 
 export default {
   components: {
     UserDetailCard,
+    DoctorDetailCard
   },
   data: () => ({
+    tab: null,
+    selectedComp: null,
     search: '',
     isLoading: false,
     user: null,
     viewing: false,
     editing: false,
-    headers: [
+    headersDoctor: [
       {
-        text: 'Device ID',
+        text: 'Nama',
+        value: 'name'
+      },
+      {
+        text: 'Email',
         align: 'left',
-        value: 'device_id',
-        width: '10%'
+        value: 'email'
       },
       {
-        text: 'Nama Pasien',
-        value: 'name',
-        width: '20%'
+        text: 'Status',
+        value: 'status'
       },
       {
-        text: 'Alamat',
-        value: 'address',
-        width: '30%'
-      },
-      {
-        text: 'Jenis Kelamin',
-        value: 'gender',
+        text: 'Aksi',
+        value: 'action',
         sortable: false,
+        align: 'center',
         width: '10%'
+      },
+    ],
+    headersPatient: [
+      {
+        text: 'Nama',
+        value: 'name'
+      },
+      {
+        text: 'Email',
+        align: 'left',
+        value: 'email'
+      },
+      {
+        text: 'Gender',
+        value: 'gender'
       },
       {
         text: 'Aksi',
@@ -136,8 +157,12 @@ export default {
   }),
   computed: {
     ...mapGetters({
-      listPatient: 'doctor/listPatient'
+      listPatient: 'admin/listUser'
     }),
+    headers() {
+      console.log(this.tab === 0 ? 'doctor' : 'patient')
+      return this.tab === 0 ? this.headersDoctor : this.headersPatient;
+    },
     isViewing: {
       get: function() {
         return this.$store.getters['viewing'];
@@ -154,9 +179,12 @@ export default {
       console.log(user)
       this.$router.push({ path: `/monitoring/${user.device_id}`, params: {userdata: user}})
     },
-    monitoringThLead(user){
-      console.log(user)
-      this.$router.push({ path: `/monitoring/th-lead/${user.device_id}`, params: {userdata: user}})
+    create() {
+      if (this.tab === 1) {
+        this.$router.push('/create-user');
+      } else {
+        this.$router.push('/doctor/addDoctor');
+      }
     },
     view(user) {
       this.viewing = true;
@@ -168,25 +196,29 @@ export default {
       //   }
       // })
     },
-    classify(user) {
-      this.$store.commit('classify/SET_USER_DATA', user);
-      this.$router.push({ path: `/classify/${user.patient_id}`, params: {userdata: user}})
-    },
     edit(user) {
       this.editing = true;
       this.user = user
       this.$store.commit('viewing');
     },
     fetch() {
+      this.selectedComp = this.tab === 0 ? 'DoctorDetailCard' : 'UserDetailCard';
       this.isLoading = true;
-      this.$store.dispatch('doctor/getPatient')
-        .then(() => {
+      this.$store.dispatch(`admin/getAdmin${ this.tab === 1 ? 'Patient' : 'Doctors'}`)
+        .then((data) => {
+          console.log(data)
           this.isLoading = false;
         })
     }
   },
   created() {
     this.fetch();
+  },
+  watch: {
+    tab(val) {
+      console.log(val)
+      this.fetch()
+    }
   }
 };
 </script>

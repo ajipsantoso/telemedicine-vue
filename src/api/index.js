@@ -1,16 +1,23 @@
 import axios from 'axios';
+import admin from './admin';
 import auth from './auth';
 import doctor from './doctor';
+import patient from './patient';
 import classify from './classify';
 import token from '../utils/token';
 
+export const ApiGeneral = axios.create({
+  baseURL: `${process.env.VUE_APP_BASE_URL}/`,
+  timeout: 12000
+});
+
 export const ApiDoctor = axios.create({
-  baseURL: `${process.env.VUE_APP_BASE_URL}:3000/doctor/`,
+  baseURL: `${process.env.VUE_APP_BASE_URL}/doctor/`,
   timeout: 12000
 });
 
 export const ApiPatient = axios.create({
-  baseURL: `${process.env.VUE_APP_BASE_URL}:3000/patient/`,
+  baseURL: `${process.env.VUE_APP_BASE_URL}/patient/`,
   timeout: 12000
 });
 
@@ -27,7 +34,9 @@ if (token.exists()) {
 }
 
 export default {
+  admin,
   auth,
   classify,
-  doctor
+  doctor,
+  patient
 };

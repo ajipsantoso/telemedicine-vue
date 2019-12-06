@@ -65,10 +65,11 @@ export default {
           if (data.status === 'success') {
             setAccessToken(data.data.session);
             token.set(data.data.session);
+            status.set('patient');
             commit('SET_LOGEDIN', true);
             commit('SET_USER', data.data);
             commit('SET_TOKEN', data.data.session);
-            commit('SET_STATUS', data.data.session);
+            commit('SET_STATUS', 'patient');
             commit('SET_ISDOCTOR', false);
             return data.data;
           } else {
@@ -90,15 +91,15 @@ export default {
       token.clear();
     },
     userDetail({ commit }, status) {
-      console.log(api.auth, status)
+      console.log('user',api.auth, status)
       return api.auth
         .ping[status]()
         .then(({ data }) => {
           console.log(data);
           if (data.status === 'success') {
-          commit('SET_USER',data.data);
-          commit('SET_LIST_MENU',menu['doctor']);
-          return data.data;
+            commit('SET_USER', data.data);
+            commit('SET_LIST_MENU', menu[status]);
+            return data.data;
           } else {
             console.log(data)
             return false;
@@ -134,6 +135,7 @@ export default {
     token: state => state.token,
     isLogedIn: state => state.isLogedIn,
     status: state => state.status,
-    isDoctor: state => state.isDoctor
+    isDoctor: state => state.isDoctor,
+    listMenu: state => state.listMenu
   }
 };

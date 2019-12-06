@@ -4,21 +4,22 @@ import api from '../api';
 export default {
   namespaced: true,
   state: {
-    listPatient: [],
+    listUser: [],
   },
   mutations: {
-    SET_LIST_PATIENT(state, data) {
-      state.listPatient = data;
+    SET_LIST_USER(state, data) {
+      state.listUser = data;
     }
   },
   actions: {
-    getPatient({ commit }) {
-      return api.doctor
-        .getPatient()
+    getAdminPatient({ commit }) {
+      commit('SET_LIST_USER',[]);
+      return api.admin
+        .getAdminPatient()
         .then(({ data }) => {
           console.log(data);
           if (data.status === 'success') {
-            commit('SET_LIST_PATIENT',data.data);
+            commit('SET_LIST_USER',data.data);
             return data.data;
           } else {
             console.log(data)
@@ -30,12 +31,14 @@ export default {
           return false;
         })
     },
-    getDoctors({ commit }) {
-      return api.doctor
-        .getDoctors()
+    getAdminDoctors({ commit }) {
+      commit('SET_LIST_USER',[]);
+      return api.admin
+        .getAdminDoctors()
         .then(({ data }) => {
           console.log(data);
           if (data.status === 'success') {
+            commit('SET_LIST_USER',data.data);
             return data.data;
           } else {
             console.log(data)
@@ -81,8 +84,25 @@ export default {
           return false;
         })
     },
+    updateDoctor({ commit }, data) {
+      return api.admin
+        .updateDoctor(data)
+        .then(({ data }) => {
+          console.log(data);
+          if (data.status === 'success') {
+            return data;
+          } else {
+            console.log(data)
+            return false;
+          }
+        })
+        .catch(err => {
+          console.log(err)
+          return false;
+        })
+    },
     updatePatient({ commit }, data) {
-      return api.doctor
+      return api.admin
         .updatePatient(data)
         .then(({ data }) => {
           console.log(data);
@@ -100,6 +120,6 @@ export default {
     },
   },
   getters: {
-    listPatient: state => state.listPatient
+    listUser: state => state.listUser
   }
 };

@@ -23,7 +23,27 @@
             <v-toolbar-title class="ma-0">Telemedicine</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          
+          <v-tabs
+            v-model="tab"
+            grow
+            show-arrows
+            mobile-break-point="0"
+            touchless
+          >
+            <v-tabs-slider></v-tabs-slider>
+            <v-tab
+              :key="'doctor'"
+              :href="`#tab-doctor`"
+            >
+              Doctor
+            </v-tab>
+            <v-tab
+              :key="'patient'"
+              :href="`#tab-patient`"
+            >
+              Patient
+            </v-tab>
+          </v-tabs>
           <v-card-text class="py-4">
               <v-text-field
                 m-3
@@ -74,6 +94,7 @@
 <script>
 export default {
   data: () => ({
+    tab: null,
     loginData: {
       email: '',
       password: ''
@@ -86,7 +107,9 @@ export default {
       const validated = await this.$validator.validateAll('form-login');
       if (validated) {
         this.loading = true;
-        let res = await this.$store.dispatch(`auth/loginDoctor`, this.loginData);
+        console.log(this.tab)
+        const url = this.tab === 'tab-doctor' ? 'loginDoctor': 'loginPatient';
+        let res = await this.$store.dispatch(`auth/${url}`, this.loginData);
         console.log(res);
         this.loading = false;
         if (res) {
