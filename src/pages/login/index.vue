@@ -16,20 +16,45 @@
         </v-card>
       </v-flex>
       <v-flex sm7 md4 mx-5>
+        <v-form @submit.prevent="login" data-vv-scope="form-login">
         <v-card height="100%"  class="elevation-5 ">
           <v-toolbar centered dark color="primary">
             <v-spacer></v-spacer>
             <v-toolbar-title class="ma-0">Telemedicine</v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
+          <v-tabs
+            v-model="tab"
+            grow
+            show-arrows
+            mobile-break-point="0"
+            touchless
+          >
+            <v-tabs-slider></v-tabs-slider>
+            <v-tab
+              :key="'doctor'"
+              :href="`#tab-doctor`"
+            >
+              Doctor
+            </v-tab>
+            <v-tab
+              :key="'patient'"
+              :href="`#tab-patient`"
+            >
+              Patient
+            </v-tab>
+          </v-tabs>
           <v-card-text class="py-4">
-            <v-form @submit.prevent="login">
               <v-text-field
                 m-3
                 v-model="loginData.email"
                 name="email"
                 label="Email"
                 type="email"
+                v-validate="'required|email'"
+                data-vv-name="email"
+                :error-messages="errors.collect('form-login.email')"
+                required
               >
               </v-text-field>
               <v-text-field
@@ -39,9 +64,13 @@
                 label="Password"
                 id="password"
                 type="password"
+                v-validate="'required'"
+                data-vv-name="password"
+                :error-messages="errors.collect('form-login.password')"
+                required
               >
               </v-text-field>
-            </v-form>
+            
           </v-card-text>
           <v-card-actions class="pa-4">
             <v-btn
@@ -57,6 +86,7 @@
             </v-btn>
           </v-card-actions>
         </v-card>
+        </v-form>
       </v-flex>
     </v-layout>
   </v-container>
@@ -64,6 +94,7 @@
 <script>
 export default {
   data: () => ({
+    tab: null,
     loginData: {
       email: '',
       password: ''
@@ -73,12 +104,17 @@ export default {
   }),
   methods: {
     async login() {
-      this.loading = true;
-      let res = await this.$store.dispatch(`auth/loginDoctor`, this.loginData);
-      console.log(res);
-      this.loading = false;
-      if (res) {
-        this.$router.push('/');
+      const validated = await this.$validator.validateAll('form-login');
+      if (validated) {
+        this.loading = true;
+        console.log(this.tab)
+        const url = this.tab === 'tab-doctor' ? 'loginDoctor': 'loginPatient';
+        let res = await this.$store.dispatch(`auth/${url}`, this.loginData);
+        console.log(res);
+        this.loading = false;
+        if (res) {
+          this.$router.push('/');
+        }
       }
     }
   }

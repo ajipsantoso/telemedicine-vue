@@ -8,7 +8,7 @@
                 <v-layout id="containerDialog">
                   <v-icon>mdi-heart</v-icon>
                 </v-layout> -->
-                <v-layout justify-center>
+                <v-layout justify-center v-show="false">
                   <v-alert
                     dense
                     outlined
@@ -25,7 +25,23 @@
                       dense
                       outlined
                     >
-                      <canvas id="chartContainer" width="500" height="400"></canvas>
+                      <canvas id="chartContainer" width="500" height="150"></canvas>
+                    </v-alert>
+                  </v-layout>
+                  <v-layout justify-center>
+                    <v-alert
+                      dense
+                      outlined
+                    >
+                      <canvas id="chartContainer1" width="500" height="150"></canvas>
+                    </v-alert>
+                  </v-layout>
+                  <v-layout justify-center>
+                    <v-alert
+                      dense
+                      outlined
+                    >
+                      <canvas id="chartContainer2" width="500" height="150"></canvas>
                     </v-alert>
                   </v-layout>
                 </div>
@@ -71,6 +87,7 @@ import {SmoothieChart, TimeSeries} from 'smoothie'
 import moment from 'moment';
 import paho from 'paho-mqtt';
 import { setTimeout } from 'timers';
+import { mapGetters } from 'vuex'
 
 export default {
   components:{
@@ -79,7 +96,7 @@ export default {
   data:()=>({
     datacollection: {},
     dataLen: 300,
-    tempArr: [],
+    tempArr: [[],[],[]],
     arr:[],
     mqttLabels: [],
     cobahtml:'',
@@ -87,24 +104,53 @@ export default {
     numDialog:0,
   }),
   computed:{
+    ...mapGetters({
+      user: 'auth/user'
+    })
   },
   methods:{
     chartonload(){
         console.log("loaded")
-        var series = new TimeSeries();
-        var chart = new SmoothieChart({
+        var series1 = new TimeSeries();
+        var series2 = new TimeSeries();
+        var series3 = new TimeSeries();
+        var chart1 = new SmoothieChart({
           grid:{fillStyle:'#ffffff',verticalSections:30,
           borderVisible:false},
           labels:{disabled:true},
           millisPerPixel:8,
         })
-        chart.addTimeSeries(series, { strokeStyle: 'rgb(206,95,108)', lineWidth: 2 });
-        chart.streamTo(document.getElementById("chartContainer"), 500);
+        var chart2 = new SmoothieChart({
+          grid:{fillStyle:'#ffffff',verticalSections:30,
+          borderVisible:false},
+          labels:{disabled:true},
+          millisPerPixel:8,
+        })
+        var chart3 = new SmoothieChart({
+          grid:{fillStyle:'#ffffff',verticalSections:30,
+          borderVisible:false},
+          labels:{disabled:true},
+          millisPerPixel:8,
+        })
+        chart1.addTimeSeries(series1, { strokeStyle: 'rgb(206,95,108)', lineWidth: 2 });
+        chart1.streamTo(document.getElementById("chartContainer"), 500);
+        chart2.addTimeSeries(series2, { strokeStyle: 'rgb(206,95,108)', lineWidth: 2 });
+        chart2.streamTo(document.getElementById("chartContainer1"), 500);
+        chart3.addTimeSeries(series3, { strokeStyle: 'rgb(206,95,108)', lineWidth: 2 });
+        chart3.streamTo(document.getElementById("chartContainer2"), 500);
         let self =this;
         setInterval(() => {
-            if (self.tempArr.length > 1){
-            series.append(new Date().getTime(),self.tempArr[0])
-            self.tempArr.shift()
+            if (self.tempArr[0].length > 1){
+              series1.append(new Date().getTime(),self.tempArr[0][0])
+              self.tempArr[0].shift()
+            }
+            if (self.tempArr[1].length > 1){
+              series2.append(new Date().getTime(),self.tempArr[1][0])
+              self.tempArr[1].shift()
+            }
+            if (self.tempArr[2].length > 1){
+              series3.append(new Date().getTime(),self.tempArr[2][0])
+              self.tempArr[2].shift()
             }
         }, 10);
     },
@@ -140,19 +186,15 @@ export default {
       // let count
       function onMessageArrived(message) {
         console.log('arive')
-        let splitted = message.payloadString.split(":")
+        let splitted = message.payloadString.split(";")
         splitted.shift()
-        for (let i =0;i<splitted.length;i++){
-          self.tempArr.push(parseFloat(splitted[i]))
-        }
-        // let writerArr = setInterval(()=>{
-        //   self.arr.push({x: new Date().getTime()  , y: self.tempArr[0]});
-        //   self.tempArr.shift();
-        //   // console.log(self.tempArr)
-        //   if (self.tempArr.length <=0) {
-        //     clearInterval(writerArr)
-        //   }
-        // },10)
+        console.log(splitted)
+        splitted.forEach((el, idx) => {
+          let elSplited = el.split(":")
+          for (let i = 0;i<elSplited.length;i++){
+            self.tempArr[idx].push(parseFloat(elSplited[i]))
+          }
+        });
       };//end fungsi messageonarrive
     },
     mqqtLabel() {
@@ -162,7 +204,7 @@ export default {
       const portBroker = '49878';
       const topic_monitoring = `rhythm/${deviceId}/ecg`
       const topic_notif = `rhythm/${deviceId}/n`
-      let client1 = new paho.Client(ipBroker, Number(portBroker), `WEB/${this.user.email}/${parseInt(Math.random() * 100, 10)}`);
+      let client1 = new paho.Client(ipBroker, Number(portBroker), "WEBmyclientid_" + parseInt(Math.random() * 100, 10));
         //Gets  called if the websocket/mqtt connection gets disconnected for any reason
         client1.onConnectionLost = function (responseObject1) {
             //Depending on your scenario you could implement a reconnect logic here
@@ -171,16 +213,11 @@ export default {
         var count_notif = 0;
         //Gets called whenever you receive a message for your subscriptions
 
-         setInterval(function(){
-          if(self.tempArr.length > 0){
-            publish('normal', topic_notif);
-          }
-         //     console.log(random.data.length)
-         //    if (random.data.length % 300 == 0 && random.data.length > 0){
-         //        	publish('normal','rhythm/<?php //echo $_GET['deviceid']; ?>///n');
-         //    }
-        
-          }, 6000);
+        //  setInterval(function(){
+        //   if(self.tempArr.length > 0){
+        //     publish('normal', topic_notif);
+        //   }        
+        //   }, 6000);
         document.onkeydown = checkKey;
         function checkKey(e) {
             e = e || window.event;
@@ -210,6 +247,7 @@ export default {
             message.destinationName = topic;
             client1.send(message);
         }
+        let cObject = []
         client1.onMessageArrived = function (message1) {
             //Do something with the push message you received
             var str
@@ -311,7 +349,7 @@ export default {
         };
         const can = document.getElementById('canvas');
         const canW = can.width, canH = can.height/2
-        let cObject = []
+        
         let ctx = can.getContext('2d');
         // cObject.push(new Circle(canW,canH,'red'))
         // setTimeout(() => {

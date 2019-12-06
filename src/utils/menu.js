@@ -8,31 +8,40 @@ export default {
   ],
   doctor: [
     {
-      icon: 'mdi-home',
+      icon: 'mdi-home-outline',
       title: 'Dashboard',
-      to: '/users'
+      to: '/',
     },
     {
-      icon: 'mdi-access-point',
-      title: 'Request Access',
-      to: '/users/request'
+      icon: 'mdi-account-multiple-plus-outline',
+      title: 'Add Account',
+      model: true,
+      children: [
+        {
+          icon: 'mdi-doctor',
+          title: 'Add Doctor / Nurse',
+          to: '/doctor/addDoctor'
+        },
+        // {
+        //   icon: 'mdi-account',
+        //   title: 'Add User',
+        //   act: 'addUser'
+        // }
+      ]
+    }
+  ],
+  nurse: [
+    {
+      icon: 'mdi-home-outline',
+      title: 'Dashboard',
+      to: '/nurse',
     },
-    // {
-    //   icon: 'mdi-access-point',
-    //   title: 'Request Approval',
-    //   to: '/users/request'
-    // }
   ],
   patient: [
     {
       icon: 'mdi-home',
       title: 'Dashboard',
-      to: '/admin'
-    },
-    {
-      icon: 'mdi-home',
-      title: 'Dashboard',
       to: '/'
-    }
+    },
   ]
 }

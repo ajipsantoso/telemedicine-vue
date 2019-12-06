@@ -4,10 +4,12 @@ import router from './router/'
 import store from './store/'
 import Vuetify from 'vuetify/lib';
 import VeeValidate from 'vee-validate';
+import VueSweetalert2 from 'vue-sweetalert2';
 import { registerMiddleware } from './router/middleware'
 
 Vue.use(Vuetify);
 Vue.use(VeeValidate);
+Vue.use(VueSweetalert2);
 let vuetify = new Vuetify({
   icons: {
     iconfont: 'mdi',

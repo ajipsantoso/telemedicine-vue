@@ -16,6 +16,26 @@ export default new Router({
       }
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('../layouts/main.vue'),
+      children: [
+        {
+          path: '/',
+          name: 'dashbaordAdmin',
+          component: () => import('../pages/dasboard/DashboardAdmin.vue'),
+          meta: {
+            middleware: { auth: true },
+            role: 'doctor'
+          }
+        },
+      ],
+      meta: {
+        middleware: { auth: true },
+        role: 'doctor'
+      }
+    },
+    {
       path: '/doctor',
       component: () => import('../layouts/main.vue'),
       children: [
@@ -23,6 +43,24 @@ export default new Router({
           path: '/',
           name: 'dashboardDoctor',
           component: () => import('../pages/dasboard/'),
+          meta: {
+            middleware: { auth: true },
+            role: 'doctor'
+          }
+        },
+        {
+          path: '/classify/:id',
+          name: 'classify',
+          component: () => import('../pages/classify/classify.vue'),
+          meta: {
+            middleware: { auth: true },
+            role: 'doctor'
+          }
+        },
+        {
+          path: 'addDoctor',
+          name: 'createDoctor',
+          component: () => import('../pages/user/createDoctor.vue'),
           meta: {
             middleware: { auth: true },
             role: 'doctor'
@@ -40,7 +78,7 @@ export default new Router({
         {
           path: '/edit-user',
           name: 'edit',
-          component: () => import('../pages/user/userEdit.vue'),
+          component: () => import('../pages/user/create.vue'),
           props: true,
           meta: {
             middleware: { auth: true },
@@ -51,6 +89,15 @@ export default new Router({
           path: '/monitoring/:deviceId',
           name: 'monitoring',
           component: () => import('../pages/user/monitoring.vue'),
+          meta: {
+            middleware: { auth: true },
+            role: 'doctor'
+          }
+        },
+        {
+          path: '/monitoring/th-lead/:deviceId',
+          name: 'monitoringThLead',
+          component: () => import('../pages/user/monitoringThreeLead.vue'),
           meta: {
             middleware: { auth: true },
             role: 'doctor'
@@ -69,7 +116,7 @@ export default new Router({
         {
           path: '/',
           name: 'dashboardPatient',
-          component: () => import('../pages/dasboard/'),
+          component: () => import('../pages/dasboard/DasboardPatient.vue'),
           meta: {
             middleware: { auth: true },
             role: 'patient'
@@ -82,14 +129,17 @@ export default new Router({
       }
     },
     {
-      path: '*',
-      redirect: '/'
+      path: '/',
+      meta: {
+        middleware: { auth: true }
+      }
     },
     {
       path: '/unauthorized',
     },
     {
-      path: '/',
+      path: '/*',
+      redirect: '/'
     },
   ],
 });

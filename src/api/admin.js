@@ -1,11 +1,11 @@
 import { ApiDoctor } from './index';
 
 export default {
-  getPatient() {
-    return ApiDoctor.get(`/get_patients`);
+  getAdminPatient() {
+    return ApiDoctor.get(`/get_all_patients`);
   },
-  getDoctors() {
-    return ApiDoctor.get(`/get_doctors`);
+  getAdminDoctors() {
+    return ApiDoctor.get(`/get_all_doctors`);
   },
   addPatient(data) {
     return ApiDoctor.post(`/add_patient`, data);
