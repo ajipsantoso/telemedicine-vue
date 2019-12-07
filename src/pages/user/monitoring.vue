@@ -71,6 +71,7 @@ import {SmoothieChart, TimeSeries} from 'smoothie'
 import moment from 'moment';
 import paho from 'paho-mqtt';
 import { setTimeout } from 'timers';
+import { mapGetters } from 'vuex'
 
 export default {
   components:{
@@ -87,6 +88,9 @@ export default {
     numDialog:0,
   }),
   computed:{
+    ...mapGetters({
+      user: 'auth/user'
+    })
   },
   methods:{
     chartonload(){
