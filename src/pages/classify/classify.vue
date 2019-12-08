@@ -317,7 +317,7 @@
           </v-layout>
           <v-layout>
             <v-flex xs12 :class="{'sm6': mode === 'change'}" pa-5 v-if="mode === 'change'">
-              <v-btn block value="RM" @click="modifyAnot({rm: true})">Remove</v-btn>
+              <v-btn block @click="modifyAnot({rm: true})">Remove</v-btn>
             </v-flex>
             <v-flex xs12 :class="{'sm6': mode === 'change'}" pa-5>
               <v-btn block @click="modifyAnot({rm: false})">Save</v-btn>
@@ -453,7 +453,8 @@ export default {
       this.mode = mode;
       const anotation = event.annotation.text
       this.anot = {
-        label: anotation
+        label: anotation,
+        before: anotation
       }
       this.anotEvent = event;
       this.$store.commit('classify/VIEWING');
@@ -483,14 +484,19 @@ export default {
           text: this.anot.label,
           captureevents: true
         })
+        this.anotAvg[this.anot.label.toLowerCase()] += 1
       } else {
         if (rm === true) {
           this.dataAnot.splice(this.anotEvent.index,1)
+          this.anotAvg[this.anot.label.toLowerCase()] -= 1
         } else {
           this.dataAnot[this.anotEvent.index].text = this.anot.label;
+          this.anotAvg[this.anot.before.toLowerCase()] -= 1
+          this.anotAvg[this.anot.label.toLowerCase()] += 1
         }
       }
       this.countAnot(this.dataAnot);
+      this.updateFile()
       this.layout = {
         annotations: [...this.dataAnot],
         title: "ECG MONITORING",
@@ -532,6 +538,9 @@ export default {
           // console.log('buka file', this.fileSelected)
           this.maxPage = this.fileSelected.len_rec;
           this.anotAvg = {
+            id: this.fileSelected.id,
+            status: this.fileSelected.status,
+            leng: this.fileSelected.len_rec,
             normal: this.fileSelected.normal,
             vt: this.fileSelected.vt,
             vf: this.fileSelected.vf,
@@ -603,13 +612,14 @@ export default {
     updateFile() {
       // console.log(this.dataAnot);
       const { x, y } = this.dataTable[0];
-      this.dataTable
+      this.dataTable;
       this.$store.dispatch('classify/updateFile', {
         filePath: `${this.fileSelected.filename.split('.')[0]}/ECG-${this.fileSelected.id}-${this.currentPage}.json`,
         fileData: {
           diagram: { x, y },
           label: [...this.dataAnot]
-        }
+        },
+        fileStatus: this.anotAvg
       })
     }
   },
